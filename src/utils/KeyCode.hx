@@ -1,0 +1,108 @@
+package utils;
+
+/**
+ * ...
+ * @author RO/RO
+ */
+@:enum
+abstract KeyCode(Int)
+{
+	var Backspace = 8;
+	var Tab = 9;
+	var Enter = 13;
+	var Shift = 16;
+	var Ctrl = 17;
+	var Alt = 18;
+	var PauseBreak = 19;
+	var CapsLock = 20;
+	var Escape = 27;
+	var PageUp = 33;
+	var PageDown = 34;
+	var End = 35;
+	var Home = 36;
+	var LeftArrow = 37;
+	var UpArrow = 38;
+	var RightArrow = 39;
+	var DownArrow = 40;
+	var Insert = 45;
+	var Delete = 46;
+	var Digit0 = 48;
+	var Digit1 = 49;
+	var Digit2 = 50;
+	var Digit3 = 51;
+	var Digit4 = 52;
+	var Digit5 = 53;
+	var Digit6 = 54;
+	var Digit7 = 55;
+	var Digit8 = 56;
+	var Digit9 = 57;
+	var A = 65;
+	var B = 66;
+	var C = 67;
+	var D = 68;
+	var E = 69;
+	var F = 70;
+	var G = 71;
+	var H = 72;
+	var I = 73;
+	var J = 74;
+	var K = 75;
+	var L = 76;
+	var M = 77;
+	var N = 78;
+	var O = 79;
+	var P = 80;
+	var Q = 81;
+	var R = 82;
+	var S = 83;
+	var T = 84;
+	var U = 85;
+	var V = 86;
+	var W = 87;
+	var X = 88;
+	var Y = 89;
+	var Z = 90;
+	var WinLeft = 91;
+	var WinRight = 92;
+	var Select = 93;
+	var Numpad0 = 96;
+	var Numpad1 = 97;
+	var Numpad2 = 98;
+	var Numpad3 = 99;
+	var Numpad4 = 100;
+	var Numpad5 = 101;
+	var Numpad6 = 102;
+	var Numpad7 = 103;
+	var Numpad8 = 104;
+	var Numpad9 = 105;
+	var Multiply = 106;
+	var Add = 107;
+	var Subtract = 109;
+	var DecimalPoint = 110;
+	var Divide = 111;
+	var F1 = 112;
+	var F2 = 113;
+	var F3 = 114;
+	var F4 = 115;
+	var F5 = 116;
+	var F6 = 117;
+	var F7 = 118;
+	var F8 = 119;
+	var F9 = 120;
+	var F10 = 121;
+	var F11 = 122;
+	var F12 = 123;
+	var NumLock = 144;
+	var ScrollLock = 145;
+	var SemiColon = 186;
+	var EqualSign = 187;
+	var Comma = 188;
+	var Dash = 189;
+	var Period = 190;
+	var ForwardSlash = 191;
+	var GraveAccent = 192;
+	var OpenBracket = 219;
+	var BackSlash = 220;
+	var CloseBracket = 221;
+	var SingleQuote = 222;
+}
