@@ -1,4 +1,5 @@
 package utils;
+
 import pixi.core.display.DisplayObject;
 import pixi.core.ticker.Ticker;
 
@@ -10,27 +11,31 @@ class FrameDispatcher
 {
 	
 	private static var _instance: FrameDispatcher;
-	private var _listeners: Map<DisplayObject, Void -> Void>;
+	private var _listeners: Map<DisplayObject, Float -> Void>; //onFrame(delta)
+	private var _ticker: Ticker;
 	
 	public function new() 
 	{
 		_listeners = new Map();
+		_ticker = new Ticker();
+		_ticker.autoStart = true;
+		_ticker.add(update);
 	}
 	
 	public static function init() { _instance = new FrameDispatcher(); }
 	
-	public static function addListener(listener: DisplayObject, frameFunc: Void -> Void)
+	public static function addListener(listener: DisplayObject, frameFunc: Float -> Void)
 	{
 		_instance._listeners.set(listener, frameFunc);
 	}
 	
-	public static function update()
+	private function update()
 	{
-		for (listener in _instance._listeners.keys())
+		for (listener in _listeners.keys())
 		{
 			if (listener.worldVisible)
 			{
-				_instance._listeners[listener]();
+				_listeners[listener](_ticker.deltaTime);
 			}
 		}
 	}

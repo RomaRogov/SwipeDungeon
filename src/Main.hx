@@ -7,7 +7,6 @@ import js.Lib;
 import pixi.core.display.Container;
 import pixi.core.renderers.Detector;
 import pixi.core.renderers.SystemRenderer;
-import ui.DirectionButtons;
 import utils.FrameDispatcher;
 import utils.GestureRecognizer;
 import utils.Keyboard;
@@ -49,7 +48,6 @@ class Main
 	function onFrame()
 	{
 		Browser.window.requestAnimationFrame(cast onFrame);
-		utils.FrameDispatcher.update();
 		renderer.render(_stage);
 	}
 	

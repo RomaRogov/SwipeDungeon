@@ -40,13 +40,66 @@ Main.main = function() {
 Main.prototype = {
 	onFrame: function() {
 		window.requestAnimationFrame($bind(this,this.onFrame));
-		utils_FrameDispatcher.update();
 		Main.renderer.render(this._stage);
 	}
 	,onResize: function() {
 		var width = window.innerWidth?window.innerWidth:window.document.documentElement.clientWidth;
 		var height = window.innerHeight?window.innerHeight:window.document.documentElement.clientHeight;
 		Main.renderer.resize(width,height);
+	}
+};
+var game_BinaryNode = function(x,y,width,height,root,isLeft) {
+	this._roomSize = 10;
+	this._root = root;
+	this._isLeft = isLeft;
+	this._x = x;
+	this._y = y;
+	this._w = width;
+	this._h = height;
+	var splittingHor = Math.random() > .5;
+	var randomFactor = .3 + Math.random() * .3;
+	if(splittingHor) {
+		if(width >= this._roomSize * 2) {
+			var pos = this._roomSize + Math.floor(randomFactor * (width - this._roomSize * 2));
+			this.leftNode = new game_BinaryNode(x,y,pos,height,this,true);
+			this.rightNode = new game_BinaryNode(x + pos,y,width - pos,height,this,false);
+			this.hasChildren = true;
+			return;
+		}
+	} else if(height >= this._roomSize * 2) {
+		var pos1 = this._roomSize + Math.floor(randomFactor * (height - this._roomSize * 2));
+		this.leftNode = new game_BinaryNode(x,y,width,pos1,this,true);
+		this.rightNode = new game_BinaryNode(x,y + pos1,width,height - pos1,this,false);
+		this.hasChildren = true;
+		return;
+	}
+	this.hasChildren = false;
+	this._roomX = 1 + Math.floor(Math.random() * this._w / 2);
+	this._roomY = 1 + Math.floor(Math.random() * this._h / 2);
+	this._roomW = Math.floor(Math.max((.6 + Math.random() * .4) * (this._w - this._roomX),this._roomSize / 2 - 2));
+	this._roomH = Math.floor(Math.max((.6 + Math.random() * .4) * (this._h - this._roomY),this._roomSize / 2 - 2));
+};
+game_BinaryNode.prototype = {
+	drawRect: function(where) {
+		if(this.hasChildren) {
+			this.leftNode.drawRect(where);
+			this.rightNode.drawRect(where);
+			return;
+		}
+		where.drawRect(this._x * 32,this._y * 32,this._w * 32,this._h * 32);
+		where.beginFill(16777215,.6);
+		where.drawRect((this._x + this._roomX) * 32,(this._y + this._roomY) * 32,this._roomW * 32,this._roomH * 32);
+		where.endFill();
+		if(this._isLeft) {
+			where.moveTo(this.getCenterX() * 32,this.getCenterY() * 32);
+			where.lineTo(this._root.rightNode.getCenterX() * 32,this._root.rightNode.getCenterY() * 32);
+		}
+	}
+	,getCenterX: function() {
+		return this._x + this._roomX + this._roomW / 2;
+	}
+	,getCenterY: function() {
+		return this._y + this._roomY + this._roomH / 2;
 	}
 };
 var game_Level = function() {
@@ -64,20 +117,23 @@ var game_Level = function() {
 			tiles.addChild(tile);
 		}
 	}
-	this.addChild(tiles);
 	this._player = new game_Player();
 	this.addChild(this._player);
 	utils_FrameDispatcher.addListener(this,$bind(this,this.onFrame));
+	var debugGraph = new PIXI.Graphics();
+	debugGraph.lineStyle(1,16777215,.3);
+	this.addChild(debugGraph);
+	new game_BinaryNode(0,0,100,100,null,true).drawRect(debugGraph);
 };
 game_Level.__super__ = PIXI.Container;
 game_Level.prototype = $extend(PIXI.Container.prototype,{
-	onFrame: function() {
+	onFrame: function(delta) {
 		this.x = Main.renderer.width / 2 - this._player.x;
 		this.y = Main.renderer.height / 2 - this._player.y;
 	}
 });
 var game_Player = function() {
-	game_Player._instance = this;
+	this._stepTime = 5;
 	var firstFrameTex = PIXI.Texture.fromImage("assets/player_frame1.png");
 	firstFrameTex.baseTexture.scaleMode = 1;
 	PIXI.Sprite.call(this,firstFrameTex);
@@ -87,17 +143,19 @@ var game_Player = function() {
 	this.position.set(16);
 	this._targetPos = new PIXI.Point(this.x,this.y);
 	utils_GestureRecognizer.addListener($bind(this,this.onSwipe));
-};
-game_Player.Shift = function(direction) {
-	game_Player._instance.onSwipe(direction);
+	this._timeSinceLastMove = 0;
 };
 game_Player.__super__ = PIXI.Sprite;
 game_Player.prototype = $extend(PIXI.Sprite.prototype,{
-	onFrame: function() {
+	onFrame: function(delta) {
 		this.position.x += (this._targetPos.x - this.position.x) * .3;
 		this.position.y += (this._targetPos.y - this.position.y) * .3;
+		this._timeSinceLastMove += delta;
 	}
 	,onSwipe: function(direction) {
+		if(this._timeSinceLastMove < this._stepTime) {
+			return;
+		}
 		switch(direction) {
 		case "down":
 			this._targetPos.y -= 32;
@@ -112,6 +170,7 @@ game_Player.prototype = $extend(PIXI.Sprite.prototype,{
 			this._targetPos.y += 32;
 			break;
 		}
+		this._timeSinceLastMove = 0;
 	}
 });
 var haxe_IMap = function() { };
@@ -135,47 +194,11 @@ haxe_ds_ObjectMap.prototype = {
 		return HxOverrides.iter(a);
 	}
 };
-var ui_DirectionButtons = function() {
-	PIXI.Container.call(this);
-	this._leftBtn = this.fillBtn(100);
-	this._leftBtn.position.set(100,Main.renderer.height / 2);
-	this._leftBtn.on("pointerdown",function() {
-		game_Player.Shift("left");
-	});
-	this.addChild(this._leftBtn);
-	this._rightBtn = this.fillBtn(100);
-	this._rightBtn.position.set(Main.renderer.width - 100,Main.renderer.height / 2);
-	this._rightBtn.on("pointerdown",function() {
-		game_Player.Shift("right");
-	});
-	this.addChild(this._rightBtn);
-	this._upBtn = this.fillBtn(100);
-	this._upBtn.position.set(Main.renderer.width / 2,100);
-	this._upBtn.on("pointerdown",function() {
-		game_Player.Shift("up");
-	});
-	this.addChild(this._upBtn);
-	this._downBtn = this.fillBtn(100);
-	this._downBtn.position.set(Main.renderer.width / 2,Main.renderer.height - 100);
-	this._downBtn.on("pointerdown",function() {
-		game_Player.Shift("down");
-	});
-	this.addChild(this._downBtn);
-};
-ui_DirectionButtons.__super__ = PIXI.Container;
-ui_DirectionButtons.prototype = $extend(PIXI.Container.prototype,{
-	fillBtn: function(size) {
-		var btn = new PIXI.Graphics();
-		btn.beginFill(16777215,.6);
-		btn.drawRect(-size / 2,-size / 2,size,size);
-		btn.endFill();
-		btn.hitArea = new PIXI.Rectangle(-size / 2,-size / 2,size,size);
-		btn.interactive = true;
-		return btn;
-	}
-});
 var utils_FrameDispatcher = function() {
 	this._listeners = new haxe_ds_ObjectMap();
+	this._ticker = new PIXI.ticker.Ticker();
+	this._ticker.autoStart = true;
+	this._ticker.add($bind(this,this.update));
 };
 utils_FrameDispatcher.init = function() {
 	utils_FrameDispatcher._instance = new utils_FrameDispatcher();
@@ -183,12 +206,14 @@ utils_FrameDispatcher.init = function() {
 utils_FrameDispatcher.addListener = function(listener,frameFunc) {
 	utils_FrameDispatcher._instance._listeners.set(listener,frameFunc);
 };
-utils_FrameDispatcher.update = function() {
-	var listener = utils_FrameDispatcher._instance._listeners.keys();
-	while(listener.hasNext()) {
-		var listener1 = listener.next();
-		if(listener1.worldVisible) {
-			utils_FrameDispatcher._instance._listeners.h[listener1.__id__]();
+utils_FrameDispatcher.prototype = {
+	update: function() {
+		var listener = this._listeners.keys();
+		while(listener.hasNext()) {
+			var listener1 = listener.next();
+			if(listener1.worldVisible) {
+				this._listeners.h[listener1.__id__](this._ticker.deltaTime);
+			}
 		}
 	}
 };
@@ -240,6 +265,7 @@ utils_GestureRecognizer.prototype = {
 		if(this._start == null || this._maxDeviation == null) {
 			return;
 		}
+		this.dispatch("end");
 		this._start = null;
 		this._maxDeviation = new PIXI.Point();
 	}

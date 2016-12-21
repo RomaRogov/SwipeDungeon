@@ -16,13 +16,12 @@ import utils.Keyboard;
  */
 class Player extends Sprite
 {
-	private static var _instance: Player;
 	private var _targetPos: Point;
+	private var _timeSinceLastMove: Float;
+	private var _stepTime: Float = 5;
 	
 	public function new() 
 	{
-		_instance = this;
-		
 		var firstFrameTex = Texture.fromImage("assets/player_frame1.png");
 		firstFrameTex.baseTexture.scaleMode = 1;
 		super(firstFrameTex);
@@ -36,16 +35,21 @@ class Player extends Sprite
 		_targetPos = new Point(x, y);
 		
 		GestureRecognizer.addListener(onSwipe);
+		
+		_timeSinceLastMove = 0;
 	}
 	
-	private function onFrame()
+	private function onFrame(delta: Float)
 	{
 		position.x += (_targetPos.x - position.x) * .3;
 		position.y += (_targetPos.y - position.y) * .3;
+		_timeSinceLastMove += delta;
 	}
 	
 	private function onSwipe(direction: String)
 	{
+		if (_timeSinceLastMove < _stepTime) { return; }
+		
 		switch (direction)
 		{
 			case "left":  _targetPos.x += 32;
@@ -53,8 +57,8 @@ class Player extends Sprite
 			case "up":    _targetPos.y += 32;
 			case "down":  _targetPos.y -= 32;
 		}
+		
+		_timeSinceLastMove = 0;
 	}
-	
-	public static function Shift(direction: String) { _instance.onSwipe(direction); }
 	
 }

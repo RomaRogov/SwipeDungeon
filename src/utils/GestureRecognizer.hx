@@ -66,8 +66,7 @@ class GestureRecognizer
 		var distance = Math.sqrt(_maxDeviation.x * _maxDeviation.x + _maxDeviation.y * _maxDeviation.y);
 		var screenMagnitude = Math.sqrt(Main.renderer.width * Main.renderer.width + Main.renderer.height * Main.renderer.height);
 		
-		//if ((distance / screenMagnitude) < _minDistance) { return; } //check distance
-		//checkSwipe(e.data.global);
+		dispatch("end");
 		
 		//reset all states
 		_start = null;
