@@ -43,7 +43,7 @@ class BinaryNode
 		_w = width;
 		_h = height;
 		
-		var splittingHor:Bool = (Math.random() > .5); //choose split direction
+		var splittingHor:Bool = width > height;//(Math.random() > .5); //choose split direction
 		var randomFactor = .3 + Math.random() * .3; //choose split position
 		
 		//Split and return
@@ -142,7 +142,7 @@ class Level extends Container
 		debugGraph.lineStyle(1, 0xFFFFFF, .3);
 		addChild(debugGraph);
 		
-		var debugBSP = new BinaryNode(0, 0, 100, 100, null, true);
+		var debugBSP = new BinaryNode(0, 0, 50, 50, null, true);
 		debugBSP.drawRect(debugGraph);
 	}
 	

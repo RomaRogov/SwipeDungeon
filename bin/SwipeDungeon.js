@@ -56,9 +56,8 @@ var game_BinaryNode = function(x,y,width,height,root,isLeft) {
 	this._y = y;
 	this._w = width;
 	this._h = height;
-	var splittingHor = Math.random() > .5;
 	var randomFactor = .3 + Math.random() * .3;
-	if(splittingHor) {
+	if(width > height) {
 		if(width >= this._roomSize * 2) {
 			var pos = this._roomSize + Math.floor(randomFactor * (width - this._roomSize * 2));
 			this.leftNode = new game_BinaryNode(x,y,pos,height,this,true);
@@ -123,7 +122,7 @@ var game_Level = function() {
 	var debugGraph = new PIXI.Graphics();
 	debugGraph.lineStyle(1,16777215,.3);
 	this.addChild(debugGraph);
-	new game_BinaryNode(0,0,100,100,null,true).drawRect(debugGraph);
+	new game_BinaryNode(0,0,50,50,null,true).drawRect(debugGraph);
 };
 game_Level.__super__ = PIXI.Container;
 game_Level.prototype = $extend(PIXI.Container.prototype,{
