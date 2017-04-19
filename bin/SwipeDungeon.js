@@ -116,13 +116,10 @@ var game_Level = function() {
 			tiles.addChild(tile);
 		}
 	}
+	this.addChild(tiles);
 	this._player = new game_Player();
 	this.addChild(this._player);
 	utils_FrameDispatcher.addListener(this,$bind(this,this.onFrame));
-	var debugGraph = new PIXI.Graphics();
-	debugGraph.lineStyle(1,16777215,.3);
-	this.addChild(debugGraph);
-	new game_BinaryNode(0,0,50,50,null,true).drawRect(debugGraph);
 };
 game_Level.__super__ = PIXI.Container;
 game_Level.prototype = $extend(PIXI.Container.prototype,{
@@ -136,13 +133,20 @@ var game_Player = function() {
 	var firstFrameTex = PIXI.Texture.fromImage("assets/player_frame1.png");
 	firstFrameTex.baseTexture.scaleMode = 1;
 	PIXI.Sprite.call(this,firstFrameTex);
-	utils_FrameDispatcher.addListener(this,$bind(this,this.onFrame));
+	var faceTex = PIXI.Texture.fromImage("assets/face.png");
+	faceTex.baseTexture.scaleMode = 1;
+	this._face = new PIXI.Sprite(faceTex);
+	this._face.anchor.set(.5,1);
+	this.addChild(this._face);
 	this.scale.set(2);
-	this.anchor.set(.5);
+	this.anchor.set(.5,1);
 	this.position.set(16);
 	this._targetPos = new PIXI.Point(this.x,this.y);
-	utils_GestureRecognizer.addListener($bind(this,this.onSwipe));
 	this._timeSinceLastMove = 0;
+	this.tint = 16711935;
+	this._face.tint = 16776960;
+	utils_GestureRecognizer.addListener($bind(this,this.onSwipe));
+	utils_FrameDispatcher.addListener(this,$bind(this,this.onFrame));
 };
 game_Player.__super__ = PIXI.Sprite;
 game_Player.prototype = $extend(PIXI.Sprite.prototype,{

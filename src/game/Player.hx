@@ -19,6 +19,7 @@ class Player extends Sprite
 	private var _targetPos: Point;
 	private var _timeSinceLastMove: Float;
 	private var _stepTime: Float = 5;
+	private var _face: Sprite;
 	
 	public function new() 
 	{
@@ -26,17 +27,23 @@ class Player extends Sprite
 		firstFrameTex.baseTexture.scaleMode = 1;
 		super(firstFrameTex);
 		
-		utils.FrameDispatcher.addListener(this, onFrame);
+		var faceTex = Texture.fromImage("assets/face.png");
+		faceTex.baseTexture.scaleMode = 1;
+		_face = new Sprite(faceTex);
+		_face.anchor.set(.5, 1);
+		addChild(_face);
 		
 		scale.set(2);
-		anchor.set(.5);
+		anchor.set(.5, 1);
 		position.set(16);
 		
 		_targetPos = new Point(x, y);
+		_timeSinceLastMove = 0;
+		tint = 0xFF00FF;
+		_face.tint = 0xFFFF00;
 		
 		GestureRecognizer.addListener(onSwipe);
-		
-		_timeSinceLastMove = 0;
+		utils.FrameDispatcher.addListener(this, onFrame);
 	}
 	
 	private function onFrame(delta: Float)

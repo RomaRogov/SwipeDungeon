@@ -131,19 +131,19 @@ class Level extends Container
 				tiles.addChild(tile);
 			}
 		//tiles.cacheAsBitmap = true;
-		//addChild(tiles);
+		addChild(tiles);
 		
 		_player = new Player();
 		addChild(_player);
 		
 		utils.FrameDispatcher.addListener(this, onFrame);
 		
-		var debugGraph = new Graphics();
+		/*var debugGraph = new Graphics();
 		debugGraph.lineStyle(1, 0xFFFFFF, .3);
 		addChild(debugGraph);
 		
 		var debugBSP = new BinaryNode(0, 0, 50, 50, null, true);
-		debugBSP.drawRect(debugGraph);
+		debugBSP.drawRect(debugGraph);*/
 	}
 	
 	private function onFrame(delta: Float)
